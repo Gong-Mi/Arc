@@ -207,6 +207,11 @@ public class AndroidGraphics extends Graphics implements Renderer{
             Core.gl20 = gl20;
         }
 
+        //program binary disk cache: only meaningful with a GLES3 context
+        if(gl30 != null){
+            AndroidShaderBinaryAdapter.install();
+        }
+
         Log.infoTag(logTag, "OGL renderer: " + gl.glGetString(GL10.GL_RENDERER));
         Log.infoTag(logTag, "OGL vendor: " + gl.glGetString(GL10.GL_VENDOR));
         Log.infoTag(logTag, "OGL version: " + gl.glGetString(GL10.GL_VERSION));

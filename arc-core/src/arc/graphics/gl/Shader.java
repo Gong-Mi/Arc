@@ -111,10 +111,28 @@ public class Shader implements Disposable{
         this.vertexShaderSource = vertexShader;
         this.fragmentShaderSource = fragmentShader;
 
+        //optional disk cache: reload a previously linked program binary instead of recompiling.
+        //any miss or failure below falls through to the normal source-compile path.
+        if(ShaderBinaryCache.enabled()){
+            int cached = ShaderBinaryCache.load(vertexShader, fragmentShader);
+            if(cached != -1){
+                program = cached;
+                vertexShaderHandle = -1;
+                fragmentShaderHandle = -1;
+                isCompiled = true;
+                fetchAttributes();
+                fetchUniforms();
+                return;
+            }
+        }
+
         compileShaders(vertexShader, fragmentShader);
         if(isCompiled()){
             fetchAttributes();
             fetchUniforms();
+            if(ShaderBinaryCache.enabled()){
+                ShaderBinaryCache.save(program, vertexShader, fragmentShader);
+            }
         }else{
             throw new IllegalArgumentException("Failed to compile shader: " + log);
         }
@@ -589,8 +607,9 @@ public class Shader implements Disposable{
         if(disposed) return;
 
         Gl.useProgram(0);
-        Gl.deleteShader(vertexShaderHandle);
-        Gl.deleteShader(fragmentShaderHandle);
+        //cached-binary programs have no individual shader objects; deleteShader would be a no-op on -1 handles
+        if(vertexShaderHandle != -1) Gl.deleteShader(vertexShaderHandle);
+        if(fragmentShaderHandle != -1) Gl.deleteShader(fragmentShaderHandle);
         Gl.deleteProgram(program);
         disposed = true;
     }
