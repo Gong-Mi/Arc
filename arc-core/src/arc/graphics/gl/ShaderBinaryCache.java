@@ -64,8 +64,10 @@ public class ShaderBinaryCache{
             if(program == 0) return -1;
             if(!a.install(program, format, buf)){
                 a.deleteProgram(program);
+                Log.infoTag("shader-cache", "driver rejected binary, recompiling");
                 return -1;
             }
+            Log.infoTag("shader-cache", "hit: " + file.name());
             return program;
         }catch(Throwable t){
             Log.errTag("shader-cache", "load failed, falling back to compile: " + t);
@@ -98,6 +100,7 @@ public class ShaderBinaryCache{
             buf.limit(length);
             out.put(buf);
             file.writeBytes(out.array(), false);
+            Log.infoTag("shader-cache", "stored: " + file.name());
         }catch(Throwable t){
             Log.errTag("shader-cache", "save failed (ignored): " + t);
         }
