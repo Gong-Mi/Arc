@@ -11,6 +11,13 @@ public class ArcNativesLoader{
 
         if(disableNativesLoading) return;
 
-        new SharedLibraryLoader().load("arc");
+        try{
+            new SharedLibraryLoader().load("arc");
+        }catch(Throwable t){
+            //natives unavailable (wrong platform, missing glibc, etc.) —
+            //pure-Java fallbacks (PngReader, non-native Pixmap buffers) handle everything
+            loaded = false;
+            Log.err("Natives not loaded, using pure-Java fallbacks (@)", t);
+        }
     }
 }
