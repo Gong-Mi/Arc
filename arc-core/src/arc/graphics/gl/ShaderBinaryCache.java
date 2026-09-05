@@ -27,6 +27,8 @@ import java.security.MessageDigest;
 public class ShaderBinaryCache{
     /** Installed by a backend that can call glGetProgramBinary/glProgramBinary. Null = disabled. */
     public static volatile Adapter adapter;
+    /** Global on/off switch; when false, load() always misses and save() is a no-op. */
+    public static volatile boolean enabled = true;
 
     private ShaderBinaryCache(){
     }
@@ -42,6 +44,7 @@ public class ShaderBinaryCache{
      * @return a linked program object handle, or -1 on any miss/failure (caller compiles from source).
      */
     public static int load(String vertexShader, String fragmentShader){
+        if(!enabled) return -1;
         Adapter a = adapter;
         if(a == null || !a.supported()) return -1;
         try{
@@ -80,6 +83,7 @@ public class ShaderBinaryCache{
      * Never throws; storage failures are logged and ignored.
      */
     public static void save(int program, String vertexShader, String fragmentShader){
+        if(!enabled) return;
         Adapter a = adapter;
         if(a == null || !a.supported() || program == 0 || program == -1) return;
         try{
