@@ -62,6 +62,7 @@ public class ShaderBinaryCache{
             int length = buf.getInt();
             if(length <= 0 || length > bytes.length - 8) return -1;
             buf.limit(8 + length);
+            buf.position(8); //skip header: glProgramBinary expects raw binary data
 
             int program = Gl.createProgram();
             if(program == 0) return -1;

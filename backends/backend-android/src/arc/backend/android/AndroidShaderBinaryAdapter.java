@@ -54,7 +54,7 @@ public class AndroidShaderBinaryAdapter implements ShaderBinaryCache.Adapter{
 
     @Override
     public boolean install(int program, int format, ByteBuffer binary){
-        binary.position(0);
+        //binary.position must already be at the raw data (past any header)
         android.opengl.GLES30.glProgramBinary(program, format, binary, binary.remaining());
         //must verify link status: the driver may reject a binary for any reason
         int[] buf = new int[1];
